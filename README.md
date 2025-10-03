@@ -1,4 +1,4 @@
-# mike-wazow-see
+# Mike Wazow-see :: Trini Feng, Rin Fukuoka, and Raven (Ruiwen) Tang
 
 ## Idea
 
