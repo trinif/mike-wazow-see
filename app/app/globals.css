@@ -20,6 +20,21 @@ body {
   color: var(--text-light);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   padding: 2rem;
+  text-align: center;
+}
+
+h1 {
+  text-align: center;
+  font-size: 48px;
+}
+
+h2 {
+  text-align: center;
+  font-size: 32px;
+}
+
+p {
+  text-align: center;
 }
 
 /* ---------- Buttons ---------- */
@@ -73,7 +88,6 @@ select {
   padding: 8px 12px;
   border-radius: 8px;
   font-size: 15px;
-  margin-left: 10px;
   cursor: pointer;
   font-weight: 500;
   transition: background 0.2s ease;
@@ -100,6 +114,8 @@ img {
   display: flex;
   gap: 1rem;
   margin-top: 1rem;
+  align-items: center;
+  justify-content: center;
 }
 
 /* ===== Inactive Tab ===== */
@@ -134,4 +150,46 @@ img {
 
 .tab-active:hover {
   background: #6d28d9;
+}
+
+/* ===== Upload Box ===== */
+.upload-box {
+  background: #181a22;
+  border: 1px solid #2a2c36;
+  padding: 1.5rem;
+  border-radius: 12px;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  padding-top: 0;
+  justify-content: center;
+  align-self: center;
+  margin: 2rem auto;
+}
+
+.upload-box h1 {
+  font-size: 28px;
+}
+
+/* ===== Labels ===== */
+.input-label {
+  color: var(--text-light);
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+  text-align: left;
+}
+
+.input-row {
+  display: flex;
+  gap: 2rem; /* spacing between file + condition */
+  align-items: center;
+  margin-bottom: 1rem;
+  margin-top: 0;
+  justify-content: center;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
 }

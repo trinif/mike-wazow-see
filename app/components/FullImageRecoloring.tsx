@@ -15,7 +15,8 @@ export default function DichromatSimulation() {
     const formData = new FormData();
     formData.append("image", selectedFile);
 
-    const res = await fetch(`http://localhost:5000/dichromat_simul?blindness=${encodeURIComponent(
+    // TODO: update route
+    const res = await fetch(`http://localhost:5000/output?blindness=${encodeURIComponent(
       blindness
     )}`, {
       method: "POST",
@@ -39,7 +40,7 @@ export default function DichromatSimulation() {
   return (
     <div>
       <div>
-        <p>Upload an image, choose a type of colorblindness, and see what the image looks like under this condition.</p>
+        <p>Upload an image, choose a type of colorblindness, and see what the image looks like recolored for accessibility.</p>
       </div>
       <div className="upload-box">
         <h1>Parameters</h1>
@@ -81,7 +82,7 @@ export default function DichromatSimulation() {
             />
           </div>
           <div className="form-group">
-            <label className="input-label">Dichromat Simulation of Image:</label>
+            <label className="input-label">Full Recolored Image:</label>
             <img
               src={resultUrl}
               alt="Processed result"
@@ -90,6 +91,18 @@ export default function DichromatSimulation() {
           </div>
         </div>
       )}
+
+      <h2>Pipeline:</h2>
+      <div className="form-group">
+        <label className="input-label">Representative Colors:</label>
+        {resultUrl && <img
+            src={resultUrl /* TODO: replace resultUrl with Representative Colors */}
+            alt="Processed result"
+            style={{ maxWidth: "300px" }}
+        />}
+      </div>
+      
+      <h3></h3>
     </div>
   );
 }

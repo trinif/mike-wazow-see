@@ -3,6 +3,7 @@
 import { useState } from "react";
 import DichromatSimulation from "../components/DichromatSimulation";
 import KeyColorExtraction from "../components/KeyColorExtraction";
+import FullImageRecoloring from "../components/FullImageRecoloring";
 
 export default function Page() {
   const [tab, setTab] = useState("dichromat");
@@ -19,16 +20,16 @@ export default function Page() {
         </button>
 
         <button
-          onClick={() => setTab("key_colors")}
-          className={tab === "key_colors" ? "tab-active" : "tab-inactive"}
+          onClick={() => setTab("recoloring")}
+          className={tab === "recoloring" ? "tab-active" : "tab-inactive"}
         >
-          Key Color Extraction
+          Full Image Recoloring
         </button>
       </div>
       {/* ---- Content ---- */}
       <div style={{ marginTop: "2rem" }}>
         {tab === "dichromat" && <DichromatSimulation />}
-        {tab === "key_colors" && <KeyColorExtraction />}
+        {tab === "recoloring" && <FullImageRecoloring />}
       </div>
     </main>
   );

@@ -4,6 +4,17 @@
 
 Our project primarily aims to improve accessibility for colorblind and low vision individuals. We will accomplish this via techniques including contrast boosting, color swapping (specifically to target the most common forms of colorblindness, and, in later iterations, to accommodate less common conditions), and texture overlays on certain regions to improve visual differentiation. In later iterations, we'll focus on text and sign extraction and subsequent enlargement, and generating alt image descriptions. In terms of iterating on input formats, we will start with explicit maps and diagrams, then still images, and then perhaps video and live image feeds. Another possible extension is enabling users to select what type of vision they have, so we can better prioritize their needs.
 
+## Running the App
+
+First start the backend Flask server that contains our Python routes for image recoloring. This can be done by calling `python app.py`. The server should run on localhost:5000.
+
+Next start the React Next.js app, which calls routes from the backend:
+
+```cd app
+npm install
+npm run dev
+```
+
 ## Planned Iterations
 - [X] Color swapping within RGB space on maps/diagrams, based on Aakash Agrawal's [Medium blog post](https://medium.com/data-science/color-swapping-techniques-in-image-processing-fe594b3ca31a)
 - [X] Color swapping within HSV space on maps/diagrams to control for saturation and brightness, based on Aakash Agrawal's [Medium blog post](https://medium.com/data-science/color-swapping-techniques-in-image-processing-fe594b3ca31a)

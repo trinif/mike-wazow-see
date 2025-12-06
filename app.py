@@ -27,8 +27,7 @@ def dichromat_simul_route():
     file.save(input_path)
 
     # Output path
-    img_period_idx = input_path.index(".")
-    output_path = input_path[:img_period_idx] + "_dichromat_simul" + input_path[img_period_idx:]
+    output_path = recoloring.get_output_path(input_path, "_dichromat_simul_" + recoloring.blindness_str(blindness_param))
 
     # Run your notebook logic
     recoloring.dichromat_simul_img(input_path, blindness_param)
@@ -49,11 +48,35 @@ def rep_colors_route():
     file.save(input_path)
 
     # Output path
-    img_period_idx = input_path.index(".")
-    output_path = input_path[:img_period_idx] + "_rep_color" + input_path[img_period_idx:]
+    output_path = recoloring.get_output_path(input_path, "_rep_color")
 
     # cube_slength hardcoded at 5
     recoloring.rep_color_visualization(input_path, 5)
+
+    # Return the processed file
+    return send_file(output_path, mimetype="image/png")
+
+@app.route("/output", methods=["POST"])
+@cross_origin()
+def output_route():
+    if "image" not in request.files:
+        return {"error": "No file uploaded"}, 400
+    
+    file = request.files["image"]
+
+    # Save input image - only allows for unique filenames
+    input_path = os.path.join(UPLOAD_FOLDER, file.filename)
+    file.save(input_path)
+
+    blindness = request.args.get("blindness")
+    blindness_param = recoloring.deutan
+    if blindness == "protan":
+        blindness_param = recoloring.protan
+
+    # Output path
+    output_path = recoloring.get_output_path(input_path, "_cluster_to_cluster_translated_" + recoloring.blindness_str(blindness_param))
+
+    recoloring.cluster_to_cluster_translation_visualization(input_path, blindness_param)
 
     # Return the processed file
     return send_file(output_path, mimetype="image/png")
