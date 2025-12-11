@@ -5,7 +5,7 @@ import { useState } from "react";
 export default function DichromatSimulation() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [blindness, setBlindness] = useState("deutan");
-  const [resultUrl, setResultUrl] = useState<string | null>(null);
+  const [resultUrls, setResultUrls] = useState([]);
   const [inputUrl, setInputUrl] = useState<string | null>(null);
 
   const handleUpload = async () => {
@@ -23,9 +23,9 @@ export default function DichromatSimulation() {
       body: formData,
     });
 
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    setResultUrl(url);
+    const data = await res.json();
+    setResultUrls(data.urls);
+
   };
 
   function handleFileChange(e: any) {
@@ -71,7 +71,7 @@ export default function DichromatSimulation() {
         </div>
       </div>
 
-      {resultUrl && (
+      {resultUrls.length > 0 && (
         <div className="input-row">
           <div className="form-group">
             <label className="input-label">Original Image: </label>
@@ -84,7 +84,7 @@ export default function DichromatSimulation() {
           <div className="form-group">
             <label className="input-label">Full Recolored Image:</label>
             <img
-              src={resultUrl}
+              src={resultUrls[0]}
               alt="Processed result"
               style={{ maxWidth: "300px" }}
             />
@@ -95,14 +95,81 @@ export default function DichromatSimulation() {
       <h2>Pipeline:</h2>
       <div className="form-group">
         <label className="input-label">Representative Colors:</label>
-        {resultUrl && <img
-            src={resultUrl /* TODO: replace resultUrl with Representative Colors */}
+        {resultUrls.length > 0 && <img
+            src={resultUrls[1] /* TODO: replace resultUrl with Representative Colors */}
             alt="Processed result"
             style={{ maxWidth: "300px" }}
         />}
       </div>
+      <div className="input-row">
+        <div className="form-group">
+            <label className="input-label">Confusing Representative Colors:</label>
+            {resultUrls.length > 0 && <img
+                src={resultUrls[2]}
+                alt="Processed result"
+                style={{ maxWidth: "300px" }}
+            />}
+        </div>
+        <div className="form-group">
+            <label className="input-label">Non-Confusing Representative Colors:</label>
+            {resultUrls.length > 0 && <img
+                src={resultUrls[3]}
+                alt="Processed result"
+                style={{ maxWidth: "300px" }}
+            />}
+        </div>
+      </div>
       
-      <h3></h3>
+      <div className="input-row">
+        <div className="form-group">
+            <label className="input-label">Clusters of Non-Confusing Key Colors:</label>
+            {resultUrls.length > 0 && <img
+                src={resultUrls[4]}
+                alt="Processed result"
+                style={{ width: "150px", height: "50%" }}
+            />}
+        </div>
+        <div className="form-group">
+            <label className="input-label">Clusters of Confusing Key Colors:</label>
+            {resultUrls.length > 0 && <img
+                src={resultUrls[5]}
+                alt="Processed result"
+                style={{ width: "150px", height: "50%" }}
+            />}
+        </div>
+      </div>
+      <div className="form-group">
+        <label className="input-label">Clusters of Confusing Key Colors With Cardinalities:</label>
+        {resultUrls.length > 0 && <img
+            src={resultUrls[6]}
+            alt="Processed result"
+            style={{ maxWidth: "300px" }}
+        />}
+      </div>
+      <div className="form-group">
+        <label className="input-label">Confusion Lines with Colors:</label>
+        {resultUrls.length > 0 && <img
+            src={resultUrls[7]}
+            alt="Processed result"
+            style={{ maxWidth: "300px" }}
+        />}
+      </div>
+      <div className="form-group">
+        <label className="input-label">Colors Transformed with Luminance:</label>
+        {resultUrls.length > 0 && <img
+            src={resultUrls[8]}
+            alt="Processed result"
+            style={{ maxWidth: "300px" }}
+        />}
+      </div>
+      <div className="form-group">
+        <label className="input-label">Dichromat Simulation of Final Image:</label>
+        {resultUrls.length > 0 && <img
+            src={resultUrls[9]}
+            alt="Processed result"
+            style={{ maxWidth: "300px" }}
+        />}
+      </div>
     </div>
   );
 }

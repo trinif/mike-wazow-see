@@ -100,10 +100,10 @@ def convertXyyToXyz(o):
 
 # %%
 # test rgb and xyz conversions
-rgb = (246, 148, 73)
-xyz = convertRgbToXyz(rgb)
-rgb = convertXyzToRgb(xyz)
-print(rgb)
+# rgb = (246, 148, 73)
+# xyz = convertRgbToXyz(rgb)
+# rgb = convertXyzToRgb(xyz)
+# print(rgb)
 
 # %%
 # translate from rgb to l, alpha, beta color space
@@ -302,6 +302,9 @@ def dichromat_simul(rgb, blinder_param, anomalize=False): # toggle anomalize to 
 # takes in image path as a string and cube_slength, returns list of representative colors and mapping from each representative color to the pixel count of the bin it represents
 # cube_slength recommended interval: [5, 10]
 def rep_colors(img_path, cube_slength):
+
+    # set up color bins
+    num_chan_bins = math.ceil(255 / cube_slength)
     # maps from lower bound (3-element tuple) of cube
     # to a list of colors 
     bins_to_colors = dict()
@@ -319,9 +322,9 @@ def rep_colors(img_path, cube_slength):
             for y in range(height):
                 for x in range(width):
                     rgb_val = img.getpixel((x, y))
-                    low_r_bound = int(rgb_val[0] / cube_slength)
-                    low_g_bound = int(rgb_val[1] / cube_slength)
-                    low_b_bound = int(rgb_val[2] / cube_slength)
+                    low_r_bound = int(rgb_val[0] / num_chan_bins)
+                    low_g_bound = int(rgb_val[1] / num_chan_bins)
+                    low_b_bound = int(rgb_val[2] / num_chan_bins)
                     if (low_r_bound, low_g_bound, low_b_bound) in bins_to_colors:
                         bins_to_colors[(low_r_bound, low_g_bound, low_b_bound)].append((rgb_val, (x, y)))
                     else:
@@ -397,7 +400,8 @@ def fuzzy_clustering(color_set, n):
     color_list = list(color_set)
     data = np.array(color_list).T
     # print(data)
-    m = 1.7
+    # m = 1.7
+    m = 1.5
     error = 1e-5
     maxiter = 2000
     # print(data.shape)
@@ -474,7 +478,7 @@ def module_1(img_path, cube_slength, delta, blindness_param, m, n):
     conf_cardinalities, key_c_colors = compute_cluster_cardinalities(rep_c_to_px_count, confusing_clusters)
     nonconf_cardinalities, key_nc_colors = compute_cluster_cardinalities(rep_c_to_px_count, nonconfusing_clusters)
     cluster_to_pixel = create_cluster_to_pixel_mapping(rep_colors_to_pixel, confusing_clusters)
-    return key_c_colors, key_nc_colors, conf_cardinalities, nonconf_cardinalities, cluster_to_pixel
+    return key_c_colors, key_nc_colors, conf_cardinalities, nonconf_cardinalities, cluster_to_pixel, confusing_clusters, nonconfusing_clusters
 
 # %% [markdown]
 # # KEY COLOR TRANSLATION
@@ -526,12 +530,11 @@ def confusion_lines(copunctal):
 
     # pull from fixed wavelengths, given by the graph in the research paper
     # protan
-
     if copunctal == (0.747, 0.253):
         wavelengths = [390, 405, 420, 445, 470, 474, 478, 481, 485, 487, 490, 493, 495, 497, 500, 504, 508, 529, 550]
     # deutan
     else:
-        wavelengths = [390, 450, 480, 485, 488, 490, 495, 498, 500, 503, 507, 512, 520, 528, 560]
+        wavelengths = [390, 450, 480, 485, 488, 490, 495, 498, 500, 503, 507, 512, 520, 528, 700]
 
     for wavelength in wavelengths:
         row = spec_loci.loc[spec_loci.iloc[:, 0] == wavelength].iloc[0]
@@ -751,16 +754,16 @@ def modules_1_and_2(img_path, cube_slength, delta, blindness_param, m, n):
     copunctal = (0.747, 0.253)
     if blindness_param == deutan:
         copunctal = (1.08, -0.8)
-    key_c_colors, key_nc_colors, conf_cardinalities, nonconf_cardinalities, _ = module_1(img_path, cube_slength, delta, blindness_param, m, n)
+    key_c_colors, key_nc_colors, conf_cardinalities, nonconf_cardinalities, _, _, _ = module_1(img_path, cube_slength, delta, blindness_param, m, n)
     conf_heap, nonconf_heap, key_c_xy_dict, key_nc_xy_dict, key_c_xyy_dict, key_nc_xyy_dict, colors_to_translate, color_translation_map = module_2(key_c_colors, key_nc_colors, conf_cardinalities, nonconf_cardinalities, copunctal)
-    print(conf_heap)
-    print(nonconf_heap)
-    print(key_c_xy_dict)
-    print(key_nc_xy_dict)
-    print(key_c_xyy_dict)
-    print(key_nc_xyy_dict)
-    print(colors_to_translate)
-    print(color_translation_map)
+    # print(conf_heap)
+    # print(nonconf_heap)
+    # print(key_c_xy_dict)
+    # print(key_nc_xy_dict)
+    # print(key_c_xyy_dict)
+    # print(key_nc_xyy_dict)
+    # print(colors_to_translate)
+    # print(color_translation_map)
 
 # %% [markdown]
 # # KEY COLOR OPTIMIZATION
@@ -851,7 +854,7 @@ def module_3(key_c_xy_dict, key_c_xyy_dict, color_translation_map, key_nc_colors
         recombination=0.6
     )
     optimized_luminances = result.x.tolist()
-    # print(optimized_luminances)
+    print(optimized_luminances)
     orig_rgb_to_rec_rgb_dict = dict()
     for i in range(len(key_c_rgb_colors_list)):
         orig_rgb = key_c_rgb_colors_list[i]
@@ -927,10 +930,10 @@ img_paths = ["images/original/crystal_lake_il_map.jpeg", "images/original/foliag
 
 # %%
 # PARAMETERS TO USE
-cube_slength = 10
+cube_slength = 5
 delta = 25
 n = 9
-m = 5
+m = 9
 lam = 0.2
 
 # %%
@@ -946,6 +949,367 @@ def blindness_str(blindness_param):
         return "deutan"
     else:
         return "protan"
+
+# %%
+def visualize_process(image_path, blindness_param):
+    def dichromat_simul_img(img_path, blindness_param):
+        try:
+            img = Image.open(img_path)
+            width, height = img.size
+            for y in range(height):
+                for x in range(width):
+                    original_rgb = img.getpixel((x, y))
+                    new_pixel = dichromat_simul(original_rgb, blindness_param)
+                    img.putpixel((x, y), (int(new_pixel[0]), int(new_pixel[1]), int(new_pixel[2])))
+            
+            img.show()
+            blindness = blindness_str(blindness_param)
+            output_img_path = get_output_path(img_path, "_dichromat_simul_" + blindness)
+            img.save(output_img_path)
+        except FileNotFoundError:
+            print("Image file not found at " + img_path)
+        except Exception as e:
+            print("An error occurred: " + e)
+
+    def rep_color_visualization(image_path):
+        rep_color_list, _, _ = rep_colors(image_path, cube_slength)
+        norm_c_colors = [(r/255, g/255, b/255) for r, g, b in rep_color_list]
+
+        img = np.array(Image.open(image_path))
+
+        cols = math.ceil(math.sqrt(len(norm_c_colors)))                   
+        rows = math.ceil(math.sqrt(len(norm_c_colors)))
+
+        fig, ax = plt.subplots(figsize=(40, 40))
+
+        ax.set_xlim(0, cols)
+        ax.set_ylim(0, rows)
+        ax.set_aspect('equal')
+        ax.axis('off')
+
+        for i, color in enumerate(norm_c_colors):
+            row = rows - 1 - (i // cols)      
+            col = i % cols
+
+            circle = patches.Circle((col + 0.5, row + 0.5), 0.4, color=color)
+            ax.add_patch(circle)
+
+        output_path = get_output_path(image_path, "_rep_color")
+        print(output_path)
+        plt.savefig(output_path)
+
+    def separated_rep_color_visualization(image_path, blindness_param):
+        rep_color_list, _, _ = rep_colors(image_path, cube_slength) # pyright: ignore[reportUndefinedVariable]
+        dichromat_color_list = [dichromat_simul(c, blindness_param) for c in rep_color_list]
+        confusing_color_set, nonconfusing_color_set = sep_confusing(rep_color_list, dichromat_color_list, delta)
+
+        norm_c_colors = [(r/255, g/255, b/255) for r, g, b in confusing_color_set] # normalize to 0–1
+        norm_nc_colors = [(r/255, g/255, b/255) for r, g, b in nonconfusing_color_set]
+
+        img = np.array(Image.open(image_path))
+
+        # confusing representative colors
+
+        c_cols = math.ceil(math.sqrt(len(norm_c_colors)))                   
+        c_rows = math.ceil(math.sqrt(len(norm_nc_colors)))
+
+        fig, ax = plt.subplots(figsize=(40, 40))
+
+        ax.set_xlim(0, c_cols)
+        ax.set_ylim(0, c_rows)
+        ax.set_aspect('equal')
+        ax.axis('off')
+
+        plt.title("Confusing Representative Colors", fontsize=40)
+
+        for i, color in enumerate(norm_c_colors):
+            row = c_rows - 1 - (i // c_cols)      
+            col = i % c_cols
+
+            circle = patches.Circle((col + 0.5, row + 0.5 + 5), 0.4, color=color)
+            ax.add_patch(circle)
+
+        plt.tight_layout(rect=[0, 0, 1, 0.95])
+        output_path = get_output_path(image_path, "_separated_conf_rep_color_" + blindness_str(blindness_param))
+        plt.savefig(output_path)
+
+        nc_cols = math.ceil(math.sqrt(len(norm_nc_colors)))
+        nc_rows = math.ceil(math.sqrt(len(norm_nc_colors)))
+        fig, ax = plt.subplots(figsize=(40, 40))
+
+        ax.set_xlim(0, nc_cols)
+        ax.set_ylim(0, nc_rows)
+        ax.set_aspect('equal')
+        ax.axis('off')
+
+        plt.title("Nonconfusing Representative Colors", fontsize=40)
+
+        # nonconfusing representative colors
+        for i, color in enumerate(norm_nc_colors):
+            row = nc_rows - 1 - (i // nc_cols)      
+            col = i % nc_cols
+
+            circle = patches.Circle((col + 0.5, row + 0.5), 0.4, color=color)
+            ax.add_patch(circle)
+
+        plt.tight_layout(rect=[0, 0, 1, 0.95])
+        output_path = get_output_path(image_path, "_separated_nonconf_rep_color_" + blindness_str(blindness_param))
+        plt.savefig(output_path)
+
+    dichromat_simul_img(image_path, blindness_param)
+    rep_color_visualization(image_path)
+    separated_rep_color_visualization(image_path, blindness_param)
+
+    key_c_colors, key_nc_colors, conf_cardinalities, nonconf_cardinalities, cluster_to_pixel, conf_clusters, nonconf_clusters = module_1(image_path, cube_slength, delta, blindness_param, m, n)
+
+    copunctal = (0.747, 0.253)
+    if blindness_param == deutan:
+        copunctal = (1.08, -0.8)
+    conf_heap, nonconf_heap, key_c_xy_dict, key_nc_xy_dict, key_c_xyy_dict, key_nc_xyy_dict, colors_to_translate, color_translation_map = module_2(key_c_colors, key_nc_colors, conf_cardinalities, nonconf_cardinalities, copunctal)
+
+    orig_rgb_to_rec_rgb_dict = module_3(key_c_xy_dict, key_c_xyy_dict, color_translation_map, key_nc_colors, blindness_param, lam=0.2)
+   
+    # normalize RGB colors to [0, 1]
+    def normalize_color(color):
+        return (color[0] / 255, color[1] / 255, color[2] / 255)
+
+    # create the plot
+    fig, ax = plt.subplots(figsize=(10, 35))
+
+    ax.axis("off")
+
+    large_bubble_radius = 0.2
+    small_bubble_radius = 0.025
+
+    y_offset = 0 # vertical offset to space out each group
+
+    for idx, (key_color, clustered_colors) in enumerate(nonconf_clusters.items()):
+        k_color = normalize_color(key_color)
+        
+        # plot the main large bubble
+        ax.add_patch(plt.Circle((0.5, y_offset), large_bubble_radius, color=k_color))
+
+        # plot the small bubbles
+        for j, clus_color in enumerate(clustered_colors):
+            cl_color = normalize_color(clus_color)
+            # small bubbles surrounding the main bubble
+            angle = np.linspace(0, 2 * np.pi, len(clustered_colors), endpoint=False)[j]
+            x_offset = 0.25 * np.cos(angle)
+            y_offset_small = 0.25 * np.sin(angle)
+            ax.add_patch(plt.Circle((0.5 + x_offset, y_offset + y_offset_small), small_bubble_radius, color=cl_color))
+
+        # move down the plot for the next main color
+        y_offset -= 0.6
+
+    padding = 0.2  # padding around bubbles
+    max_offset = large_bubble_radius + 0.13 + small_bubble_radius + padding
+
+    ax.set_xlim(0.5 - max_offset, 0.5 + max_offset)  
+    ax.set_ylim(y_offset - max_offset, 1 + max_offset) 
+    ax.set_aspect('equal')
+
+    output_path = get_output_path(image_path, "_nonconf_cluster_" + blindness_str(blindness_param))
+    plt.savefig(output_path, bbox_inches='tight')
+
+    plt.tight_layout()
+
+
+    # create the plot
+    fig, ax = plt.subplots(figsize=(10, 35))
+
+    ax.axis("off")
+
+    large_bubble_radius = 0.2
+    small_bubble_radius = 0.025
+
+    y_offset = 0 # vertical offset to space out each group
+
+    for idx, (key_color, clustered_colors) in enumerate(conf_clusters.items()):
+        k_color = normalize_color(key_color)
+        
+        # plot the main large bubble
+        ax.add_patch(plt.Circle((0.5, y_offset), large_bubble_radius, color=k_color))
+
+        # plot the small bubbles
+        for j, clus_color in enumerate(clustered_colors):
+            cl_color = normalize_color(clus_color)
+            # small bubbles surrounding the main bubble
+            angle = np.linspace(0, 2 * np.pi, len(clustered_colors), endpoint=False)[j]
+            x_offset = 0.25 * np.cos(angle)
+            y_offset_small = 0.25 * np.sin(angle)
+            ax.add_patch(plt.Circle((0.5 + x_offset, y_offset + y_offset_small), small_bubble_radius, color=cl_color))
+
+        # move down the plot for the next main color
+        y_offset -= 0.6
+
+    padding = 0.2  # padding around bubbles
+    max_offset = large_bubble_radius + 0.13 + small_bubble_radius + padding
+
+    ax.set_xlim(0.5 - max_offset, 0.5 + max_offset)  
+    ax.set_ylim(y_offset - max_offset, 1 + max_offset) 
+    ax.set_aspect('equal')
+
+    output_path = get_output_path(image_path, "_conf_cluster_" + blindness_str(blindness_param))
+    plt.savefig(output_path, bbox_inches='tight')
+
+    plt.tight_layout()
+
+
+    # key colors cardinality visualization
+    img = np.array(Image.open(image_path))
+    fig, ax = plt.subplots(1, 2, figsize=(8, 5), gridspec_kw={'width_ratios': [4, 1]})
+    fig.suptitle("Key Confusing Colors Extracted, with their Cluster Cardinalities")
+
+    # Show image
+    ax[0].imshow(img)
+    ax[0].axis('off')
+
+    # show color dots
+    ax[1].axis('off')
+    ax[1].set_aspect('equal', 'box')
+
+    # for i, color in enumerate(norm_c_colors):
+    for i, color in enumerate(conf_cardinalities):
+        norm_color = color[0] / 255, color[1] / 255, color[2] / 255
+        circle = patches.Circle((0.5, len(conf_cardinalities)-i-0.5), 0.4, color=norm_color)
+        ax[1].add_patch(circle)
+        ax[1].text(0.7, len(conf_cardinalities)-i-0.5, conf_cardinalities[color], va='center', ha='left', fontsize=12)
+       
+    ax[1].set_xlim(0, 1)
+    ax[1].set_ylim(0, len(conf_cardinalities))
+
+
+    plt.tight_layout()
+    output_path = get_output_path(image_path, "_key_conf_color_w_cardinality_" + blindness_str(blindness_param))
+    plt.savefig(output_path)
+
+
+
+    # confusion lines visualization
+    # pre-translation plot
+    fig, ax = colour.plotting.plot_chromaticity_diagram_CIE1931(
+        show_diagram_colours=True, 
+        show_spectral_locus=True,
+        standalone=False
+    )
+
+    # print(key_c_xy_dict)
+
+    for (r, g, b), (x, y) in key_c_xy_dict.items():
+        plt.plot(x, y, 'o', color='black', markersize=8)
+
+    # print("colors to translate", colors_to_translate)
+
+    for (x, y) in colors_to_translate:
+        # print(x, y)
+        plt.plot(x, y, 'o', color='white', markersize=8, markeredgecolor='black')
+
+    for (r, g, b), (x, y) in key_nc_xy_dict.items():
+        plt.plot(x, y, 'o', color='gray', markersize=8, markeredgecolor='black')
+
+    conf_lines = confusion_lines(copunctal)
+
+    for conf_line in conf_lines:
+        ax.plot((conf_line[0], copunctal[0]), (conf_line[1], copunctal[1]), 'b-') # 'b-' for black solid line
+
+    # display the plot
+    plt.title("Key Colors & Confusion Lines (white dots = confusing key colors that need to be translated; black = confusing key colors that don't need translation, gray = nonconfusing key colors)")
+    plt.tight_layout()
+    output_path = get_output_path(image_path, "_pre_trans_confusion_lines_" + blindness_str(blindness_param))
+    plt.savefig(output_path)
+
+    fig, ax = colour.plotting.plot_chromaticity_diagram_CIE1931(
+        show_diagram_colours=True, 
+        show_spectral_locus=True,
+        standalone=False
+    )
+
+    # print(key_c_xy_dict)
+
+    for (r, g, b), (x, y) in key_c_xy_dict.items():
+        if (x, y) not in colors_to_translate:
+            plt.plot(x, y, 'o', color='black', markersize=8)
+
+    for (r, g, b), (x, y) in key_nc_xy_dict.items():
+        plt.plot(x, y, 'o', color='gray', markersize=8, markeredgecolor='black')
+
+    # print("colors to translate", colors_to_translate)
+
+    for (x, y) in colors_to_translate:
+        # print(x, y)
+        translated_x, translated_y = color_translation_map[(x, y)]
+        plt.plot(translated_x, translated_y, 'o', color='white', markersize=8, markeredgecolor='black')
+
+    conf_lines = confusion_lines(copunctal)
+
+    for conf_line in conf_lines:
+        ax.plot((conf_line[0], copunctal[0]), (conf_line[1], copunctal[1]), 'b-') # 'b-' for blue solid line
+
+    # display the plot
+    plt.title("Key Confusing Colors & Confusion Lines (white dots = key confusing colors that have been translated, black = key confusing colors that were not translated, gray = nonconfusing key colors)")
+    plt.tight_layout()
+    output_path = get_output_path(image_path, "_post_trans_confusion_lines_" + blindness_str(blindness_param))
+    plt.savefig(output_path)
+
+
+    orig_colors = []
+    first_attempt_rec_colors = []
+    luminance_adj_rec_colors = []
+    for rgb_color in orig_rgb_to_rec_rgb_dict:
+        orig_colors.append(rgb_color)
+        xy_color = key_c_xy_dict[rgb_color]
+        if xy_color in color_translation_map:
+            first_attempt_rec_xy = color_translation_map[xy_color]
+            first_attempt_rec_rgb = convertXyzToRgb(convertXyyToXyz((first_attempt_rec_xy[0], first_attempt_rec_xy[1], key_c_xyy_dict[xy_color][2])))
+            first_attempt_rec_colors.append(first_attempt_rec_rgb)
+        else:
+            first_attempt_rec_colors.append(rgb_color)
+        luminance_adj_rec_colors.append(orig_rgb_to_rec_rgb_dict[rgb_color])
+
+
+    cols = [orig_colors, first_attempt_rec_colors, luminance_adj_rec_colors]
+    fig, ax = plt.subplots(figsize=(12, 12))
+    ax.set_facecolor('lightblue')
+    for i, col in enumerate(cols):
+        for j, color in enumerate(col):
+            circ = patches.Circle((i + 3.6, len(col)-j-0.5), 0.4, color=(color[0]/255, color[1]/255, color[2]/255), edgecolor='black')
+            ax.add_patch(circ)
+
+
+    ax.set_xlim(0, len(orig_colors))
+    ax.set_ylim(0, len(orig_colors))
+    ax.set_xticks([])
+    ax.set_yticks([])
+
+    plt.title("Original Key Confusing Colors (left), Translated (middle), Optimized for Naturalness (right)")
+
+    plt.gca().invert_yaxis()
+    output_path = get_output_path(image_path, "_col_trans_luminance_" + blindness_str(blindness_param))
+    plt.savefig(output_path)
+
+    # final image output
+    output_image = module_4(orig_rgb_to_rec_rgb_dict, cluster_to_pixel, image_path)
+    # visualize some tests
+    output_path = get_output_path(image_path, "_cluster_to_cluster_translated_" + blindness_str(blindness_param))
+    output_image.save(output_path)
+
+
+    # dichromat simulation
+    dichromat_img = output_image.copy()
+    width, height = output_image.size
+    for y in range(height):
+        for x in range(width):
+            original_rgb = output_image.getpixel((x, y))
+            new_pixel = dichromat_simul(original_rgb, blindness_param)
+            dichromat_img.putpixel((x, y), (int(new_pixel[0]), int(new_pixel[1]), int(new_pixel[2])))
+   
+    output_path = get_output_path(image_path, "_cluster_to_cluster_translated_dichromt_simul_" + blindness_str(blindness_param))
+    dichromat_img.save(output_path)
+    
+
+# %%
+# ip = "images/original/foliage.jpg"
+# visualize_process(ip, protan)
 
 # %% [markdown]
 # ## Dichromat Simulation Visualization
@@ -1134,9 +1498,6 @@ for img in img_paths:
 # %%
 # separated_rep_color_visualization("images/original/set_of_tests.jpg", protan)
 
-# # %%
-# separated_rep_color_visualization("images/original/set_of_tests.jpg", deutan)
-
 # %%
 # visualizes nonconfusing color clusters
 # takes in image path as string, blindness parameter
@@ -1271,7 +1632,8 @@ for img in img_paths:
 def key_conf_color_w_cardinality(img_path, blindness_param):
 
 
-    key_c_colors, key_nc_colors, conf_cardinalities, nonconf_cardinalities, _ = module_1(img_path, cube_slength, delta, blindness_param, m, n)
+    key_c_colors, key_nc_colors, conf_cardinalities, nonconf_cardinalities, _, _, _ = module_1(img_path, cube_slength, delta, blindness_param, m, n)
+    
     norm_c_colors = [(r/255, g/255, b/255) for r, g, b in conf_cardinalities]  # normalize to 0–1
 
 
@@ -1292,13 +1654,15 @@ def key_conf_color_w_cardinality(img_path, blindness_param):
     ax[1].set_aspect('equal', 'box')
 
 
-    for i, color in enumerate(norm_c_colors):
-        circle = patches.Circle((0.5, len(norm_c_colors)-i-0.5), 0.4, color=color)
+    # for i, color in enumerate(norm_c_colors):
+    for i, color in enumerate(conf_cardinalities):
+        norm_color = color[0] / 255, color[1] / 255, color[2] / color
+        circle = patches.Circle((0.5, len(conf_cardinalities)-i-0.5), 0.4, color=norm_color)
         ax[1].add_patch(circle)
-        ax[1].text(0.7, len(norm_c_colors)-i-0.5, conf_cardinalities[(color[0] * 255, color[1] * 255, color[2] * 255)], va='center', ha='left', fontsize=12)
+        ax[1].text(0.7, len(conf_cardinalities)-i-0.5, conf_cardinalities[color], va='center', ha='left', fontsize=12)
        
     ax[1].set_xlim(0, 1)
-    ax[1].set_ylim(0, len(norm_c_colors))
+    ax[1].set_ylim(0, len(conf_cardinalities))
 
 
     plt.tight_layout()
@@ -1313,10 +1677,6 @@ for img in img_paths:
     key_conf_color_w_cardinality(img, protan) # protan
     key_conf_color_w_cardinality(img, deutan) # deutan
 """
-
-# %%
-# key_conf_color_w_cardinality("images/original/set_of_tests.jpg", protan) # protan
-# key_conf_color_w_cardinality("images/original/set_of_tests.jpg", deutan) # deutan
 
 # %% [markdown]
 # ## Key Color Translation Visualization
@@ -1335,7 +1695,7 @@ def color_translation_visualization(img_path, blindness_param):
     copunctal = (0.747, 0.253)
     if blindness_param == deutan:
         copunctal = (1.08, -0.8)
-    key_c_colors, key_nc_colors, conf_cardinalities, nonconf_cardinalities, _ = module_1(img_path, cube_slength, delta, blindness_param, m, n)
+    key_c_colors, key_nc_colors, conf_cardinalities, nonconf_cardinalities, _, _, _ = module_1(img_path, cube_slength, delta, blindness_param, m, n)
     conf_heap, nonconf_heap, key_c_xy_dict, key_nc_xy_dict, key_c_xyy_dict, key_nc_xyy_dict, colors_to_translate, color_translation_map = module_2(key_c_colors, key_nc_colors, conf_cardinalities, nonconf_cardinalities, copunctal)
 
     # pre-translation plot
@@ -1423,7 +1783,7 @@ def color_translation_and_luminance_adjustment_visualization(img_path, blindness
         copunctal = (1.08, -0.8)
 
 
-    key_c_colors, key_nc_colors, conf_cardinalities, nonconf_cardinalities, _ = module_1(img_path, cube_slength, delta, blindness_param, m, n)
+    key_c_colors, key_nc_colors, conf_cardinalities, nonconf_cardinalities, _, _, _ = module_1(img_path, cube_slength, delta, blindness_param, m, n)
     conf_heap, nonconf_heap, key_c_xy_dict, key_nc_xy_dict, key_c_xyy_dict, key_nc_xyy_dict, colors_to_translate, color_translation_map = module_2(key_c_colors, key_nc_colors, conf_cardinalities, nonconf_cardinalities, copunctal)
     orig_rgb_to_rec_rgb_dict = module_3(key_c_xy_dict, key_c_xyy_dict, color_translation_map, key_nc_colors, blindness_param, lam=0.2)
     # print("ORIGINAL RGB TO RECOLORED RGB DICT")
@@ -1450,7 +1810,7 @@ def color_translation_and_luminance_adjustment_visualization(img_path, blindness
     ax.set_facecolor('lightblue')
     for i, col in enumerate(cols):
         for j, color in enumerate(col):
-            circ = patches.Circle((i + 1.6, len(col)-j-0.5), 0.4, color=(color[0]/255, color[1]/255, color[2]/255), edgecolor='black')
+            circ = patches.Circle((i + 3.6, len(col)-j-0.5), 0.4, color=(color[0]/255, color[1]/255, color[2]/255), edgecolor='black')
             ax.add_patch(circ)
 
 
@@ -1467,9 +1827,11 @@ def color_translation_and_luminance_adjustment_visualization(img_path, blindness
     plt.show()
 
 # %%
-# for img_path in img_paths:
-#     color_translation_and_luminance_adjustment_visualization(img_path, protan)
-#     color_translation_and_luminance_adjustment_visualization(img_path, deutan)
+"""
+for img_path in img_paths:
+    color_translation_and_luminance_adjustment_visualization(img_path, protan)
+    color_translation_and_luminance_adjustment_visualization(img_path, deutan)
+"""
 
 # %%
 # color_translation_and_luminance_adjustment_visualization("images/original/set_of_tests.jpg", protan)
@@ -1485,7 +1847,7 @@ def cluster_to_cluster_translation_visualization(img_path, blindness_param):
         copunctal = (1.08, -0.8)
 
 
-    key_c_colors, key_nc_colors, conf_cardinalities, nonconf_cardinalities, cluster_to_pixel = module_1(img_path, cube_slength, delta, blindness_param, m, n)
+    key_c_colors, key_nc_colors, conf_cardinalities, nonconf_cardinalities, cluster_to_pixel, _, _ = module_1(img_path, cube_slength, delta, blindness_param, m, n)
     conf_heap, nonconf_heap, key_c_xy_dict, key_nc_xy_dict, key_c_xyy_dict, key_nc_xyy_dict, colors_to_translate, color_translation_map = module_2(key_c_colors, key_nc_colors, conf_cardinalities, nonconf_cardinalities, copunctal)
     orig_rgb_to_rec_rgb_dict = module_3(key_c_xy_dict, key_c_xyy_dict, color_translation_map, key_nc_colors, blindness_param, lam=0.2)
     output_image = module_4(orig_rgb_to_rec_rgb_dict, cluster_to_pixel, img_path)
@@ -1494,7 +1856,6 @@ def cluster_to_cluster_translation_visualization(img_path, blindness_param):
     # visualize some tests
     output_path = get_output_path(img_path, "_cluster_to_cluster_translated_" + blindness_str(blindness_param))
     output_image.save(output_path)
-    # display(output_image)
 
 
     # dichromat simulation
@@ -1506,16 +1867,17 @@ def cluster_to_cluster_translation_visualization(img_path, blindness_param):
             new_pixel = dichromat_simul(original_rgb, blindness_param)
             dichromat_img.putpixel((x, y), (int(new_pixel[0]), int(new_pixel[1]), int(new_pixel[2])))
    
-    output_path = get_output_path(img_path, "_cluster_to_cluster_translated_dichromat_simul_" + blindness_str(blindness_param))
+    output_path = get_output_path(img_path, "_cluster_to_cluster_translated_dichromt_simul_" + blindness_str(blindness_param))
     dichromat_img.save(output_path)
-    # display(dichromat_img)
 
 # %%
-# for img in img_paths:
-#     cluster_to_cluster_translation_visualization(img, deutan)
-#     cluster_to_cluster_translation_visualization(img, protan)
+"""
+for img in img_paths:
+    cluster_to_cluster_translation_visualization(img, deutan)
+    cluster_to_cluster_translation_visualization(img, protan)
+"""
 
-# # %%
+# %%
 # cluster_to_cluster_translation_visualization("images/original/set_of_tests.jpg", deutan)
 # cluster_to_cluster_translation_visualization("images/original/set_of_tests.jpg", protan)
 

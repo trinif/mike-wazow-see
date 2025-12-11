@@ -183,7 +183,7 @@ img {
 .input-row {
   display: flex;
   gap: 2rem; /* spacing between file + condition */
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 1rem;
   margin-top: 0;
   justify-content: center;
@@ -192,4 +192,6 @@ img {
 .form-group {
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
