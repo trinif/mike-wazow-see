@@ -2,7 +2,21 @@
 
 ## Idea
 
-Our project primarily aims to improve accessibility for colorblind and low vision individuals. We will accomplish this via techniques including contrast boosting, color swapping (specifically to target the most common forms of colorblindness, and, in later iterations, to accommodate less common conditions), and texture overlays on certain regions to improve visual differentiation. In later iterations, we'll focus on text and sign extraction and subsequent enlargement, and generating alt image descriptions. In terms of iterating on input formats, we will start with explicit maps and diagrams, then still images, and then perhaps video and live image feeds. Another possible extension is enabling users to select what type of vision they have, so we can better prioritize their needs.
+Our project primarily aims to improve accessibility for colorblind and low vision individuals.
+
+For this project, we have implemented a recoloring algorithm described in this research paper: https://pmc.ncbi.nlm.nih.gov/articles/PMC8069325/. The recoloring algorithm aims to preserve the naturalness and contrast of the original image while also targeting certain colorblind conditions such as deuteranopia and protanopia. We have implemented all 4 modules of this algorithm, along with building visualizations and a frontend application interface that allows anyone to upload their own images and visualize the entire pipeline from start to finish of this algorithm.
+
+## Project Structure
+
+- `recoloring.ipynb`: Python notebook that contains our code for each module, along with visualizations and tests
+- `recoloring.py`: Packaged Python file from `recoloring.ipynb` that allows for Python methods to be extracted into routes for the application
+- `app.py`: Defined routes for the application, including routes for dichromat simulation and final output
+- `test.ipynb`: Python notebook that contains our earliest iterations of basic color-swapping
+- `output`: Folder that contains outputs of our first 2 iterations, RGB swapping and HSV swapping
+- `images`: Contains dichromat simulations of our input images under deuteranopia and protanopia, as well as original source images and various visualizations of these source images as they travel through the pipeline
+- `data`: Contains a CSV file of different wavelength points to compute confusion line equations (needed for Module 2)
+- `app_data`: Contains input and output files that are processed through the application interface - that is, if a user uploads an image, their image will be uploaded to `app_data`, and the output will also be uploaded to `app_data`
+- `app`: Contains files for building the application interface, made with React and Next.js
 
 ## Running the App
 
@@ -15,7 +29,10 @@ npm install
 npm run dev
 ```
 
-## Planned Iterations
+## Original Planned Iterations
+
+Our first thoughts: we thought we could accomplish this via techniques including contrast boosting, color swapping (specifically to target the most common forms of colorblindness, and, in later iterations, to accommodate less common conditions), and texture overlays on certain regions to improve visual differentiation. In later iterations, we'd focus on text and sign extraction and subsequent enlargement, and generating alt image descriptions. We'd start with explicit maps and diagrams, then still images, and then perhaps video and live image feeds.
+
 - [X] Color swapping within RGB space on maps/diagrams, based on Aakash Agrawal's [Medium blog post](https://medium.com/data-science/color-swapping-techniques-in-image-processing-fe594b3ca31a)
 - [X] Color swapping within HSV space on maps/diagrams to control for saturation and brightness, based on Aakash Agrawal's [Medium blog post](https://medium.com/data-science/color-swapping-techniques-in-image-processing-fe594b3ca31a)
 - [ ] Use of color range binary masks on maps/diagrams to target specific color swaps, based on Aakash Agrawal's [Medium blog post](https://medium.com/data-science/color-swapping-techniques-in-image-processing-fe594b3ca31a)

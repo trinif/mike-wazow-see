@@ -34,7 +34,6 @@ def dichromat_simul_route():
     # Output path
     output_path = recoloring.get_output_path(input_path, "_dichromat_simul_" + recoloring.blindness_str(blindness_param))
 
-    # Run your notebook logic
     recoloring.dichromat_simul_img(input_path, blindness_param)
 
     # Return the processed file
@@ -97,57 +96,6 @@ def output_route():
 
     # Return the processed file
     return jsonify({ "urls": urls })
-
-# NEED TO CALL AFTER OUTPUT (should save files and be fine)
-# @app.route("/rep_color", methods=["POST"])
-# @cross_origin()
-# def rep_color_route():
-#     if "image" not in request.files:
-#         return {"error": "No file uploaded"}, 400
-    
-#     file = request.files["image"]
-
-#     # Save input image - only allows for unique filenames
-#     input_path = os.path.join(UPLOAD_FOLDER, file.filename)
-
-#     output_path = recoloring.get_output_path(input_path, "_rep_color")
-
-#     return send_file(output_path, mimetype="image/png")
-
-# @app.route("/separated_conf_rep_color", methods=["POST"])
-# @cross_origin()
-# def rep_color_route():
-#     if "image" not in request.files:
-#         return {"error": "No file uploaded"}, 400
-    
-#     file = request.files["image"]
-
-#     blindness = request.args.get("blindness")
-#     blindness_param = recoloring.deutan
-#     if blindness == "protan":
-#         blindness_param = recoloring.protan
-
-#     # Save input image - only allows for unique filenames
-#     input_path = os.path.join(UPLOAD_FOLDER, file.filename)
-
-#     output_path = recoloring.get_output_path(input_path, "_separated_conf_rep_color_" + recoloring.blindness_str(blindness_param))
-
-#     return send_file(output_path, mimetype="image/png")
-
-# @app.route("/add", methods=["GET"])
-# def add_route():
-#     a = float(request.args.get("a"))
-#     b = float(request.args.get("b"))
-#     result = mylogic.add(a, b)
-#     return jsonify({"result": result})
-
-
-# @app.route("/greet", methods=["POST"])
-# def greet_route():
-#     data = request.get_json()
-#     name = data.get("name")
-#     result = mylogic.greet(name)
-#     return jsonify({"message": result})
 
 
 if __name__ == "__main__":

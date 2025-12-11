@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import DichromatSimulation from "../components/DichromatSimulation";
-import KeyColorExtraction from "../components/KeyColorExtraction";
 import FullImageRecoloring from "../components/FullImageRecoloring";
 
 export default function Page() {

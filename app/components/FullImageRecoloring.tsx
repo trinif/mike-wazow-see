@@ -15,7 +15,6 @@ export default function DichromatSimulation() {
     const formData = new FormData();
     formData.append("image", selectedFile);
 
-    // TODO: update route
     const res = await fetch(`http://localhost:5000/output?blindness=${encodeURIComponent(
       blindness
     )}`, {
@@ -96,7 +95,7 @@ export default function DichromatSimulation() {
       <div className="form-group">
         <label className="input-label">Representative Colors:</label>
         {resultUrls.length > 0 && <img
-            src={resultUrls[1] /* TODO: replace resultUrl with Representative Colors */}
+            src={resultUrls[1]}
             alt="Processed result"
             style={{ maxWidth: "300px" }}
         />}
