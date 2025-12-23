@@ -6,7 +6,7 @@ Our project primarily aims to improve accessibility for colorblind and low visio
 
 For this project, we have implemented a recoloring algorithm described in this research paper: https://pmc.ncbi.nlm.nih.gov/articles/PMC8069325/. The recoloring algorithm aims to preserve the naturalness and contrast of the original image while also targeting certain colorblind conditions such as deuteranopia and protanopia. We have implemented all 4 modules of this algorithm, along with building visualizations and a frontend application interface that allows anyone to upload their own images and visualize the entire pipeline from start to finish of this algorithm.
 
-You can view additionally view our [demo slides](https://docs.google.com/presentation/d/1C5YwaGU5-nvOpAT-H2YtFaC06s2myP7fTpNEfzE6PEQ/edit?usp=sharing) and [demo video](https://drive.google.com/file/d/1RLyNNg66LSfCf7AUWUWiuM4ptX4tQIiE/view?usp=sharing).
+You may additionally view our [demo slides](https://docs.google.com/presentation/d/1C5YwaGU5-nvOpAT-H2YtFaC06s2myP7fTpNEfzE6PEQ/edit?usp=sharing) and [demo video](https://drive.google.com/file/d/1RLyNNg66LSfCf7AUWUWiuM4ptX4tQIiE/view?usp=sharing).
 
 ## Project Structure
 
